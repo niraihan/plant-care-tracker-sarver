@@ -34,6 +34,7 @@ async function run() {
         });
 
         // GET: All plants  by email
+        
         app.get("/plants", async (req, res) => {
             const email = req.query.email;
             const query = email ? { userEmail: email } : {};
