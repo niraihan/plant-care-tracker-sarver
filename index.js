@@ -40,7 +40,11 @@ async function run() {
             const plants = await plantCollection.find(query).toArray();
             res.send(plants);
         });
-
+        app.get("/new-plants", async (req, res) => {
+            
+            const plants = await plantCollection.find().sort({ _id: -1 }).limit(6).toArray();
+            res.send(plants);
+        });
 
         // GET: A single plant by ID
         app.get("/plants/:id", async (req, res) => {
