@@ -69,8 +69,7 @@ async function run() {
         });
 
         // DELETE: Remove a plant by ID
-
-        app.delete("/plant/:id", async (req, res) => {
+        app.delete("/plants/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await plantCollection.deleteOne(query);
@@ -79,7 +78,7 @@ async function run() {
 
         console.log(" MongoDB connected and routes are live.");
     } finally {
-
+        
         // Do not close client in dev server
     }
 }
