@@ -25,7 +25,7 @@ async function run() {
         // await client.connect();
         const db = client.db("plantCareDB");
         const plantCollection = db.collection("plants");
-
+        //-----------------------Plant--------------------------------------
         // POST: Add a new plant
         app.post("/plants", async (req, res) => {
             const plant = req.body;
@@ -34,7 +34,7 @@ async function run() {
         });
 
         // GET: All plants  by email
-        
+
         app.get("/plants", async (req, res) => {
             const email = req.query.email;
             const query = email ? { userEmail: email } : {};
@@ -42,8 +42,8 @@ async function run() {
             res.send(plants);
         });
         app.get("/new-plants", async (req, res) => {
-            
-            const plants = await plantCollection.find().sort({ _id: -1 }).limit(6).toArray();
+
+            const plants = await plantCollection.find().sort({ _id: -1 }).limit(8).toArray();
             res.send(plants);
         });
 
@@ -75,10 +75,53 @@ async function run() {
             const result = await plantCollection.deleteOne(query);
             res.send(result);
         });
+        //---------------------------subscriber----------------------------
+        // ✅ Newsletter Collection
+        const newsletterCollection = db.collection("newsletterSubscribers");
+
+        // ✅ POST: Add a new subscriber
+        app.post("/newsletter", async (req, res) => {
+            const { email } = req.body;
+
+            if (!email || !/\S+@\S+\.\S+/.test(email)) {
+                return res.status(400).json({ message: "Invalid email address" });
+            }
+
+            try {
+                const existing = await newsletterCollection.findOne({ email });
+                if (existing) {
+                    return res.status(409).json({ message: "Already subscribed" });
+                }
+
+                const result = await newsletterCollection.insertOne({
+                    email,
+                    subscribedAt: new Date(),
+                });
+
+                res.send(result);
+            } catch (err) {
+                console.error("Newsletter Subscription Error:", err);
+                res.status(500).json({ message: "Server error" });
+            }
+        });
+        // ✅ GET: All newsletter subscribers
+        app.get("/newsletter", async (req, res) => {
+            try {
+                const subscribers = await newsletterCollection
+                    .find()
+                    .sort({ subscribedAt: -1 }) // latest first
+                    .toArray();
+                res.send(subscribers);
+            } catch (error) {
+                console.error("Failed to fetch subscribers:", error);
+                res.status(500).json({ message: "Server error" });
+            }
+        });
+
 
         console.log(" MongoDB connected and routes are live.");
     } finally {
-        
+
         // Do not close client in dev server
     }
 }
